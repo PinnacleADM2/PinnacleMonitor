@@ -1,8 +1,20 @@
 import ccxt, os
+# Adiciona imports para dotenv
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, String, Table, MetaData
+from sqlalchemy.dialects.postgresql import insert
 
-# URI do Postgres via env var
+# Carrega variáveis do arquivo .env
+load_dotenv()
+
+# URI do Postgres via env var (agora deve funcionar)
 DB_URL = os.getenv("DATABASE_URL")
+
+# Verifica se DB_URL foi carregado corretamente
+if not DB_URL:
+    print("Erro Crítico: DATABASE_URL não encontrada. Verifique o arquivo .env e se python-dotenv está instalado.")
+    exit(1)
+
 engine = create_engine(DB_URL)
 meta = MetaData()
 
@@ -69,7 +81,8 @@ def catalogar_todos():
     conn.close()
 
 if __name__ == "__main__":
-    if not DB_URL:
-        print("Erro: A variável de ambiente DATABASE_URL não está definida.")
-        exit(1)
+    # A verificação de DB_URL já foi feita acima após load_dotenv()
+    # if not DB_URL:
+    #     print("Erro: A variável de ambiente DATABASE_URL não está definida.")
+    #     exit(1)
     catalogar_todos()
