@@ -54,15 +54,29 @@ def catalogar_todos():
         print(f"Processando exchange: {ex_id}")
         try:
             ex_class = getattr(ccxt, ex_id)
-            ex = ex_class()
-            # Algumas exchanges requerem autenticação ou chaves de API para carregar mercados,
-            # vamos pular essas por enquanto ou adicionar tratamento de erro específico se necessário.
-            if ex.requires['fetchMarkets'] == 'emulated':
-                 print(f"Pulando {ex_id}: fetchMarkets é emulado.")
-                 continue
-            if ex.requires['fetchMarkets'] and not (ex.apiKey and ex.secret):
-                print(f"Pulando {ex_id}: Requer API key/secret não fornecida.")
+            # Adiciona configuração para desabilitar rate limit (pode ser útil para catalogação, mas use com cuidado)
+            ex = ex_class({'enableRateLimit': False})
+            
+            # --- Verificação Segura de Requisitos ---
+            # Verifica se 'requires' existe e se 'fetchMarkets' está presente
+            fetch_markets_requires_auth = False
+            fetch_markets_emulated = False
+            if hasattr(ex, 'requires') and isinstance(ex.requires, dict):
+                if ex.requires.get('fetchMarkets') == 'emulated':
+                    fetch_markets_emulated = True
+                # Verifica se fetchMarkets é True (ou não presente, assumindo que não requer auth)
+                # E se API keys são necessárias
+                if ex.requires.get('fetchMarkets', False) is True and not (ex.apiKey and ex.secret):
+                    fetch_markets_requires_auth = True
+            
+            # Pula se emulado ou se requer auth não fornecida
+            if fetch_markets_emulated:
+                print(f"Pulando {ex_id}: fetchMarkets é emulado.")
                 continue
+            if fetch_markets_requires_auth:
+                print(f"Pulando {ex_id}: Requer API key/secret não fornecida para fetchMarkets.")
+                continue
+            # --- Fim Verificação Segura ---
 
             markets = ex.load_markets()
             print(f"Encontrados {len(markets)} mercados para {ex_id}")

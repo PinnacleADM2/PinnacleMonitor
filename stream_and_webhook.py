@@ -6,6 +6,10 @@ import time
 from datetime import datetime, timezone, timedelta
 from collections import deque, defaultdict
 
+# Adiciona import para dotenv
+from dotenv import load_dotenv
+import pprint
+
 from sqlalchemy import create_engine, select, MetaData, Table
 
 from cryptofeed import FeedHandler
@@ -25,14 +29,34 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # --- Configuração Global ---
+
+# --- DEBUGGING --- 
+print(f"DEBUG: Diretório atual: {os.getcwd()}")
+print("DEBUG: Tentando carregar .env para stream_and_webhook")
+# Tenta carregar explicitamente do diretório atual
+dotenv_path = os.path.join(os.getcwd(), '.env')
+print(f"DEBUG: Caminho do .env a ser carregado: {dotenv_path}")
+dotenv_loaded = load_dotenv(dotenv_path=dotenv_path, verbose=True) # verbose=True pode dar mais info
+print(f"DEBUG: load_dotenv() retornou: {dotenv_loaded}") 
+# --- FIM DEBUGGING ---
+
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+# --- DEBUGGING --- 
+print(f"DEBUG: Valor IMEDIATO de WEBHOOK_URL: {WEBHOOK_URL}")
+print(f"DEBUG: Valor IMEDIATO de DATABASE_URL: {DATABASE_URL}")
+print(f"DEBUG: Verificando diretamente em os.environ:")
+print(f"DEBUG: os.environ.get('WEBHOOK_URL'): {os.environ.get('WEBHOOK_URL')}")
+print(f"DEBUG: os.environ.get('DATABASE_URL'): {os.environ.get('DATABASE_URL')}")
+# --- FIM DEBUGGING ---
+
+# Verifica se as variáveis foram carregadas ANTES de usá-las
 if not WEBHOOK_URL:
-    logger.error("Variável de ambiente WEBHOOK_URL não definida!")
+    logger.error("Variável de ambiente WEBHOOK_URL não definida após load_dotenv! Verifique .env e permissões.")
     exit(1)
 if not DATABASE_URL:
-    logger.error("Variável de ambiente DATABASE_URL não definida!")
+    logger.error("Variável de ambiente DATABASE_URL não definida após load_dotenv! Verifique .env e permissões.")
     exit(1)
 
 # Top Exchanges (Exemplo - ajuste conforme necessário)
