@@ -3,12 +3,30 @@ import ccxt, os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, String, Table, MetaData
 from sqlalchemy.dialects.postgresql import insert
+import pprint # Para imprimir o dicionário de ambiente
 
+# --- DEBUGGING --- 
+print("DEBUG: Tentando carregar .env")
 # Carrega variáveis do arquivo .env
-load_dotenv()
+dotenv_loaded = load_dotenv()
+print(f"DEBUG: load_dotenv() retornou: {dotenv_loaded}")
+# --- FIM DEBUGGING ---
 
 # URI do Postgres via env var (agora deve funcionar)
 DB_URL = os.getenv("DATABASE_URL")
+
+# --- DEBUGGING ---
+print(f"DEBUG: Valor de DB_URL após os.getenv: {DB_URL}")
+print("DEBUG: Verificando algumas variáveis de ambiente:")
+print(f"DEBUG: USER={os.getenv('USER')}")
+print(f"DEBUG: HOME={os.getenv('HOME')}")
+# Imprime a variável específica que queremos, caso exista diretamente no os.environ
+print(f"DEBUG: os.environ.get('DATABASE_URL'): {os.environ.get('DATABASE_URL')}") 
+# Atenção: Imprimir todo o os.environ pode vazar informações sensíveis se houver outras variáveis.
+# Vamos imprimir apenas a chave que nos interessa diretamente do dicionário os.environ.
+# print("DEBUG: Conteúdo parcial de os.environ:") 
+# pprint.pprint({k: v for k, v in os.environ.items() if k in ['HOME', 'PATH', 'USER', 'DATABASE_URL']})
+# --- FIM DEBUGGING ---
 
 # Verifica se DB_URL foi carregado corretamente
 if not DB_URL:
